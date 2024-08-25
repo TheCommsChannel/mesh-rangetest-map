@@ -39,7 +39,7 @@
    
 ### Usage
 
-1. Run Range Tests and place the csv files in the same directory. Change the name of the csv files to something that makes sense
+1. Run Range Tests and place the csv files in the same directory. Change the name of the csv files to something that makes sense.
 
 2. Run the script with the following command:  
    
@@ -47,4 +47,4 @@
    python rtmap.py
    ```
    
-3. An HTML file will be generated which can now be opened to view the range test results
+3. An HTML file named rangetest-map.html will be generated which can now be opened to view the range test results.
