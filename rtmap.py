@@ -5,6 +5,7 @@ import folium
 import matplotlib.colors as mcolors
 from folium.plugins import MeasureControl
 from collections import defaultdict
+from html import escape
 
 def create_point_layer(csv_file):
 
@@ -46,12 +47,13 @@ def create_point_layer(csv_file):
         else:
             color = mcolors.rgb2hex(cmap(row['normalized_snr']))
 
+
         popup_info = ("<div style='white-space:nowrap;'>"
-           f"{os.path.basename(csv_file)}"
+           f"{escape(os.path.basename(csv_file))}"
            f"<br>SNR: {row['rx snr']}"
            f"<br>Elevation: {row['rx elevation']}"
-           f"<br>Sender Name: {row['sender name']}"
-           f"<br>Time: {row['time']}"
+           f"<br>Sender Name: {escape(row['sender name'])}"
+           f"<br>Time: {escape(row['time'])}"
            "</div>")
 
         folium.CircleMarker(
