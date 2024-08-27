@@ -1,10 +1,10 @@
-import os
-import glob
-import pandas as pd
 import folium
+import glob
 import matplotlib.colors as mcolors
-from folium.plugins import MeasureControl
+import os
+import pandas as pd
 from collections import defaultdict
+from folium.plugins import MeasureControl
 from html import escape
 
 def create_point_layer(csv_file):
