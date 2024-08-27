@@ -39,7 +39,7 @@ def create_point_layer(csv_file):
         else:
             color = mcolors.rgb2hex(cmap(row['normalized_snr']))
 
-        popup_info = f"{os.path.basename(csv_file)}<br>SNR: {row['rx snr']}<br>Elevation: {row['rx elevation']}"
+        popup_info = f"<div style='white-space:nowrap;'>{os.path.basename(csv_file)}<br>SNR: {row['rx snr']}<br>Elevation: {row['rx elevation']}</div>"
         folium.CircleMarker(
             location=[row['rx lat'], row['rx long']],
             radius=7,
