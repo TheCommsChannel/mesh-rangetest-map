@@ -10,6 +10,8 @@ def create_point_layer(csv_file):
     df_filtered = pd.read_csv(csv_file)
 
     # Filter invalid positions
+    df_filtered = df_filtered[(df_filtered['sender name'].str.len() > 0) &
+                              ~df_filtered['sender name'].str.contains('\(MQTT\)', na=False)]
     df_filtered = df_filtered[(df_filtered['rx lat'].apply(lambda x: isinstance(x, (int, float)))) &
                               (df_filtered['rx long'].apply(lambda x: isinstance(x, (int, float)))) &
                               (df_filtered['rx lat'].between(-90, 90)) &
