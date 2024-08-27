@@ -28,8 +28,8 @@ def create_point_layer(csv_file):
     # Define the color map (from red to green)
     cmap = mcolors.LinearSegmentedColormap.from_list("", ["red", "yellow", "green"])
 
-    # Normalize the SNR values to a range for color mapping
-    df_filtered['normalized_snr'] = df_filtered['rx snr'].apply(lambda x: (x - (-21)) / (12 - (-21)))  # Normalize to range [-21, 12]
+    # Normalize the SNR values to a range [-21, 12] for color mapping
+    df_filtered['normalized_snr'] = df_filtered['rx snr'].apply(lambda x: (x - (-21)) / (12 - (-21)))
 
     # Add a marker for each point
     for _, row in df_filtered.iterrows():
@@ -39,7 +39,14 @@ def create_point_layer(csv_file):
         else:
             color = mcolors.rgb2hex(cmap(row['normalized_snr']))
 
-        popup_info = f"<div style='white-space:nowrap;'>{os.path.basename(csv_file)}<br>SNR: {row['rx snr']}<br>Elevation: {row['rx elevation']} <br>Sender Name: {row['sender name']}<br>Time: {row['time']}</div>"
+        popup_info = ("<div style='white-space:nowrap;'>"
+           f"{os.path.basename(csv_file)}"
+           f"<br>SNR: {row['rx snr']}"
+           f"<br>Elevation: {row['rx elevation']}"
+           f"<br>Sender Name: {row['sender name']}"
+           f"<br>Time: {row['time']}"
+           "</div>")
+
         folium.CircleMarker(
             location=[row['rx lat'], row['rx long']],
             radius=7,
@@ -117,7 +124,6 @@ def create_map_with_layers(csv_files, output_file):
 
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(output_file)
-
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
