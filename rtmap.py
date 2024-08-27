@@ -4,10 +4,17 @@ import pandas as pd
 import folium
 import matplotlib.colors as mcolors
 from folium.plugins import MeasureControl
+from collections import defaultdict
 
 def create_point_layer(csv_file):
 
-    df_filtered = pd.read_csv(csv_file)
+    df_filtered = pd.read_csv(
+        csv_file,
+        dtype=defaultdict(lambda: "string", {
+            'rx lat': 'float',
+            'rx long': 'float',
+            'rx snr': 'float',
+            'rx elevation': 'float'}))
 
     # Filter invalid positions
     df_filtered = df_filtered[(df_filtered['sender name'].str.len() > 0) &
