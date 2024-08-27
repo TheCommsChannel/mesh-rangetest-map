@@ -7,37 +7,14 @@ from collections import defaultdict
 from folium.plugins import MeasureControl
 from html import escape
 
-def create_point_layer(csv_file):
-
-    df_filtered = pd.read_csv(
-        csv_file,
-        dtype=defaultdict(lambda: "string", {
-            'rx lat': 'float',
-            'rx long': 'float',
-            'rx snr': 'float',
-            'rx elevation': 'float'}))
-
-    # Filter invalid positions
-    df_filtered = df_filtered[(df_filtered['sender name'].str.len() > 0) &
-                              ~df_filtered['sender name'].str.contains('\(MQTT\)', na=False)]
-    df_filtered = df_filtered[(df_filtered['rx lat'].apply(lambda x: isinstance(x, (int, float)))) &
-                              (df_filtered['rx long'].apply(lambda x: isinstance(x, (int, float)))) &
-                              (df_filtered['rx lat'].between(-90, 90)) &
-                              (df_filtered['rx long'].between(-180, 180))]
-
-    # Check if df_filtered has valid data
-    if df_filtered.empty:
-        print(f"No valid data found in {csv_file}. Skipping point layer creation.")
-        return None
-
+def create_point_layer(df_filtered, csv_file):
     # Create a FeatureGroup for the CSV file
-    layer = folium.FeatureGroup(name=os.path.basename(csv_file))
+    layer = folium.FeatureGroup(name=csv_file)
 
     # Define the color map (from red to green)
     cmap = mcolors.LinearSegmentedColormap.from_list("", ["red", "yellow", "green"])
 
-    # Normalize the SNR values to a range [-21, 12] for color mapping
-    df_filtered['normalized_snr'] = df_filtered['rx snr'].apply(lambda x: (x - (-21)) / (12 - (-21)))
+    df_filtered = df_filtered[(df_filtered['Source File'] == csv_file)]
 
     # Add a marker for each point
     for _, row in df_filtered.iterrows():
@@ -49,7 +26,7 @@ def create_point_layer(csv_file):
 
 
         popup_info = ("<div style='white-space:nowrap;'>"
-           f"{escape(os.path.basename(csv_file))}"
+           f"{escape(row['Source File'])}"
            f"<br>SNR: {row['rx snr']}"
            f"<br>Elevation: {row['rx elevation']}"
            f"<br>Sender Name: {escape(row['sender name'])}"
@@ -68,10 +45,9 @@ def create_point_layer(csv_file):
 
     return layer
 
-def create_map_with_layers(csv_files, output_file):
+def create_map_with_layers(df_filtered, output_file):
     # Base map
-    initial_df = pd.read_csv(csv_files[0])
-    initial_map_center = [initial_df['rx lat'].mean(), initial_df['rx long'].mean()]
+    initial_map_center = [df_filtered['rx lat'].mean(), df_filtered['rx long'].mean()]
     m = folium.Map(location=initial_map_center, zoom_start=13, tiles="OpenStreetMap", control_scale=True)
 
     # Measure Tool
@@ -126,13 +102,46 @@ def create_map_with_layers(csv_files, output_file):
     ).add_to(m)
 
     # CSV layers
-    for csv_file in csv_files:
-        layer = create_point_layer(csv_file)
+    for csv_file in pd.unique(df_filtered['Source File']):
+        layer = create_point_layer(df_filtered, csv_file)
         if layer:
             layer.add_to(m)
 
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(output_file)
+
+def process_csvs(csv_files):
+    dfArr = []
+    for csv_file in csv_files:
+        df_filtered = pd.read_csv(
+            csv_file,
+            dtype=defaultdict(lambda: "string", {
+                'rx lat': 'float',
+                'rx long': 'float',
+                'rx snr': 'float',
+                'rx elevation': 'float'}))
+
+        # Filter invalid positions
+        df_filtered = df_filtered[(df_filtered['sender name'].str.len() > 0) &
+                                  ~df_filtered['sender name'].str.contains('\(MQTT\)', na=False)]
+        df_filtered = df_filtered[(df_filtered['rx lat'].apply(lambda x: isinstance(x, (int, float)))) &
+                                  (df_filtered['rx long'].apply(lambda x: isinstance(x, (int, float)))) &
+                                  (df_filtered['rx lat'].between(-90, 90)) &
+                                  (df_filtered['rx long'].between(-180, 180))]
+
+        # Check if df_filtered has valid data
+        if df_filtered.empty:
+            print(f"No valid data found in {csv_file}. Skipping point layer creation.")
+            continue
+
+        # Normalize the SNR values to a range [-21, 12] for color mapping
+        df_filtered['normalized_snr'] = df_filtered['rx snr'].apply(lambda x: (x - (-21)) / (12 - (-21)))
+
+        df_filtered['Source File']=os.path.basename(csv_file)
+        dfArr.append(df_filtered)
+
+    return pd.concat(dfArr, ignore_index=True)
+
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -142,6 +151,13 @@ if __name__ == "__main__":
         print("No CSV files found in the directory. Exiting.")
         exit(1)
 
+    df_filtered = process_csvs(csv_files)
+
+    # Check if df_filtered has valid data
+    if df_filtered.empty:
+        print("No points found in. Skipping map creation.")
+        exit(1)
+
     output_file = 'rangetest-map.html'
-    create_map_with_layers(csv_files, output_file)
+    create_map_with_layers(df_filtered, output_file)
     print(f"Map with layers has been generated and can be viewed in '{output_file}'.")
