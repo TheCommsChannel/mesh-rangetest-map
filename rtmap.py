@@ -7,11 +7,9 @@ from folium.plugins import MeasureControl
 
 def create_point_layer(csv_file):
 
-    df = pd.read_csv(csv_file)
+    df_filtered = pd.read_csv(csv_file)
 
-    # Row filtering
-    df_filtered = df[df['payload'].str.contains(r'seq \d+', na=False)]
-    df_filtered = df_filtered[['rx lat', 'rx long', 'rx snr', 'sender name', 'rx elevation']].dropna()
+    # Filter invalid positions
     df_filtered = df_filtered[(df_filtered['rx lat'].apply(lambda x: isinstance(x, (int, float)))) &
                               (df_filtered['rx long'].apply(lambda x: isinstance(x, (int, float)))) &
                               (df_filtered['rx lat'].between(-90, 90)) &
