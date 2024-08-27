@@ -1,3 +1,4 @@
+import argparse
 import folium
 import glob
 import matplotlib.colors as mcolors
@@ -110,7 +111,7 @@ def create_map_with_layers(df_filtered, output_file):
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(output_file)
 
-def process_csvs(csv_files):
+def process_csvs(csv_files, exclude):
     dfArr = []
     for csv_file in csv_files:
         df_filtered = pd.read_csv(
@@ -129,6 +130,18 @@ def process_csvs(csv_files):
                                   (df_filtered['rx lat'].between(-90, 90)) &
                                   (df_filtered['rx long'].between(-180, 180))]
 
+        if exclude:
+           cords = exclude.split(':')
+           lcord = cords[0].split(',')
+           llat = float(lcord[0])
+           llon = float(lcord[1])
+           rcord = cords[1].split(',')
+           rlat = float(rcord[0])
+           rlon = float(rcord[1])
+           df_filtered = df_filtered[~(df_filtered['rx lat'].between(llat, rlat)) &
+                           (~df_filtered['rx long'].between(llon, rlon))]
+
+
         # Check if df_filtered has valid data
         if df_filtered.empty:
             print(f"No valid data found in {csv_file}. Skipping point layer creation.")
@@ -140,7 +153,10 @@ def process_csvs(csv_files):
         df_filtered['Source File']=os.path.basename(csv_file)
         dfArr.append(df_filtered)
 
-    return pd.concat(dfArr, ignore_index=True)
+    if dfArr:
+      return pd.concat(dfArr, ignore_index=True)
+    else:
+      return None
 
 
 if __name__ == "__main__":
@@ -151,10 +167,23 @@ if __name__ == "__main__":
         print("No CSV files found in the directory. Exiting.")
         exit(1)
 
-    df_filtered = process_csvs(csv_files)
+    parser = argparse.ArgumentParser(
+                        prog='rtmap',
+                        description='Convert meshtastic range test data into a map')
+
+    parser.add_argument('-e', '--exclude',
+                        action='store',
+                        help='GPS coordinate square to filter from display <top-left>:<bottom-right>')
+
+    args = parser.parse_args()
+
+
+    df_filtered = process_csvs(
+        csv_files,
+        args.exclude)
 
     # Check if df_filtered has valid data
-    if df_filtered.empty:
+    if df_filtered is None or df_filtered.empty:
         print("No points found in. Skipping map creation.")
         exit(1)
 

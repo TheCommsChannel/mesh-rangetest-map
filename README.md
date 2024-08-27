@@ -61,3 +61,11 @@
    ```
 
 3. An HTML file named rangetest-map.html will be generated which can now be opened to view the range test results.
+
+#### Arguments
+
+##### `-e` `--exclude`
+
+GPS coordinate square to filter from display `<top-left>:<bottom-right>`
+
+Note: use `--exclude='<val>'` if top is a negative value.
