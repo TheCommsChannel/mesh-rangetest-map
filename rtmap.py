@@ -8,14 +8,12 @@ from collections import defaultdict
 from folium.plugins import MeasureControl
 from html import escape
 
-def create_point_layer(df_filtered, csv_file):
+def create_point_layer(df_filtered, layerName):
     # Create a FeatureGroup for the CSV file
-    layer = folium.FeatureGroup(name=csv_file)
+    layer = folium.FeatureGroup(name=layerName)
 
     # Define the color map (from red to green)
     cmap = mcolors.LinearSegmentedColormap.from_list("", ["red", "yellow", "green"])
-
-    df_filtered = df_filtered[(df_filtered['Source File'] == csv_file)]
 
     # Add a marker for each point
     for _, row in df_filtered.iterrows():
@@ -104,9 +102,15 @@ def create_map_with_layers(df_filtered, output_file):
 
     # CSV layers
     for csv_file in pd.unique(df_filtered['Source File']):
-        layer = create_point_layer(df_filtered, csv_file)
-        if layer:
-            layer.add_to(m)
+        payloads = ["NEIGHBORINFO","NODEINFO","POSITION","ROUTING","TELEMETRY", "seq"]
+        for payload in payloads:
+            subSet = df_filtered[df_filtered['payload'].str.contains(payload, na=False)]
+            subSet = subSet[(subSet['Source File'] == csv_file)]
+            if subSet.empty:
+                continue
+            layer = create_point_layer(subSet, csv_file + " " + payload)
+            if layer:
+                layer.add_to(m)
 
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(output_file)
