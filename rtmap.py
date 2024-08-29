@@ -1,8 +1,9 @@
-import pandas as pd
-import folium
 import os
 import glob
+import pandas as pd
+import folium
 import matplotlib.colors as mcolors
+from folium.plugins import MeasureControl
 
 def create_point_layer(csv_file):
 
@@ -57,6 +58,18 @@ def create_map_with_layers(csv_files, output_file):
     initial_map_center = [initial_df['rx lat'].mean(), initial_df['rx long'].mean()]
     m = folium.Map(location=initial_map_center, zoom_start=13, tiles="OpenStreetMap", control_scale=True)
 
+    # Measure Tool
+    m.add_child(MeasureControl(
+        active_color='blue',
+        completed_color='blue',
+        primary_length_unit='miles',
+        secondary_length_unit='meters',
+        tertiary_length_unit='feet',
+        primary_area_unit=None,
+        secondary_area_unit=None,
+        tertiary_area_unit=None
+    ))
+
     # Map layers
     folium.TileLayer(
         tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -100,6 +113,7 @@ def create_map_with_layers(csv_files, output_file):
 
     folium.LayerControl(collapsed=False).add_to(m)
     m.save(output_file)
+
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
