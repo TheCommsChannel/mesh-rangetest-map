@@ -72,15 +72,23 @@ def create_map_with_layers(csv_files, output_file):
 
     # Map layers
     folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Positron"
+        tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attr='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        name="Esri WorldImagery"
     ).add_to(m)
 
     folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+        attr='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
+             '<a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> '
+             '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        name="OpenTopoMap"
+    ).add_to(m)
+
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
         attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
-        name="CartoDB Dark Matter"
+        name="CartoDB Positron"
     ).add_to(m)
 
     folium.TileLayer(
@@ -96,14 +104,10 @@ def create_map_with_layers(csv_files, output_file):
     ).add_to(m)
 
     folium.TileLayer(
-        tiles="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-        attr='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
-             '<a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> '
-             '(<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
-        name="OpenTopoMap"
+        tiles="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+        attr="Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.",
+        name="CartoDB Dark Matter"
     ).add_to(m)
-
-    folium.TileLayer("", name="None", attr="blank").add_to(m)
 
     # CSV layers
     for csv_file in csv_files:
