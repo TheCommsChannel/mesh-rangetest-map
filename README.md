@@ -41,7 +41,20 @@
 
 1. Run Range Tests and place the csv files in the same directory. Change the name of the csv files to something that makes sense.
 
-2. Run the script with the following command:  
+2. Navigate to the `mesh-rangetest-map` directory if you're not already there and activate the virtual environment:  
+   
+   - On Windows:  
+   
+   ```sh
+   venv\Scripts\activate  
+   ```
+   
+   - On macOS and Linux:
+   
+   ```sh
+   source venv/bin/activate
+   ```
+3. Run the script with the following command:  
    
    ```sh
    python rtmap.py
