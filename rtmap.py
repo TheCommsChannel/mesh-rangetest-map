@@ -72,6 +72,18 @@ def create_map_with_layers(csv_files, output_file):
 
     # Map layers
     folium.TileLayer(
+        tiles="https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swissimage/default/current/3857/{z}/{x}/{y}.jpeg",
+        attr="Map tiles by the Swiss Federal Office of Topography. The acquisition and use of data or services is free of charge, subject to the provisions on fair use: <a href=\"https://www.geo.admin.ch/en/general-terms-of-use-fsdi\">https://www.geo.admin.ch/en/general-terms-of-use-fsdi</a>",
+        name="Swissimage"
+    ).add_to(m)
+
+    folium.TileLayer(
+        tiles="https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/3857/{z}/{x}/{y}.jpeg",
+        attr="Map tiles by the Swiss Federal Office of Topography. The acquisition and use of data or services is free of charge, subject to the provisions on fair use: <a href=\"https://www.geo.admin.ch/en/general-terms-of-use-fsdi\">https://www.geo.admin.ch/en/general-terms-of-use-fsdi</a>",
+        name="Swisstopo"
+    ).add_to(m)
+    
+    folium.TileLayer(
         tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         attr='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         name="Esri WorldImagery"
