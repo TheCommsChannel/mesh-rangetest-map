@@ -6,7 +6,6 @@ import matplotlib.colors as mcolors
 from folium.plugins import MeasureControl
 
 def create_point_layer(csv_file):
-
     df = pd.read_csv(csv_file)
 
     # Row filtering
@@ -16,6 +15,13 @@ def create_point_layer(csv_file):
                               (df_filtered['rx long'].apply(lambda x: isinstance(x, (int, float)))) &
                               (df_filtered['rx lat'].between(-90, 90)) &
                               (df_filtered['rx long'].between(-180, 180))]
+
+    # Replace commas with periods in 'rx snr' and convert to numeric
+    df_filtered['rx snr'] = df_filtered['rx snr'].str.replace(',', '.').astype(str)
+    df_filtered['rx snr'] = pd.to_numeric(df_filtered['rx snr'], errors='coerce')
+
+    # Drop rows with NaN values in 'rx snr'
+    df_filtered = df_filtered.dropna(subset=['rx snr'])
 
     # Check if df_filtered has valid data
     if df_filtered.empty:
@@ -51,6 +57,7 @@ def create_point_layer(csv_file):
         ).add_to(layer)
 
     return layer
+
 
 def create_map_with_layers(csv_files, output_file):
     # Base map
